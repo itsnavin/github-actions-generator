@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Learn GitHub Actions one small step at a time and generate a workflow YAML file locally.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Actions Lab | Learn &amp; build a workflow</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="generator.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#builder">Skip to generator</a>
+  <header class="site-header"><a class="brand" href="./">[ &gt; ] Actions Lab</a><nav aria-label="Main"><a href="#builder">Build</a><a href="#learn">Learn</a><a href="#next">Use your file</a></nav></header>
+  <main>
+    <section class="hero">
+      <p class="eyebrow">GITHUB ACTIONS, ONE SMALL STEP AT A TIME</p>
+      <h1>Your first workflow.<br><span>Without the guesswork.</span></h1>
+      <p>Pick a starting point, see the YAML take shape, and learn what each piece means. No sign-in. No tokens. Everything stays in your browser.</p>
+      <a class="button" href="#builder">Build a workflow <span aria-hidden="true">&rarr;</span></a>
+      <span class="hero-note">Free &middot; static &middot; beginner-friendly</span>
+    </section>
+    <div class="section-heading" id="builder"><div><p class="eyebrow">01 / THE WORKBENCH</p><h2>Start small. Make it yours.</h2></div><p>Generating a file does not run a workflow.</p></div>
+    <div class="workbench">
+      <form id="config" novalidate>
+        <fieldset><legend>1. Choose a starting point</legend>
+          <label for="template">Template</label>
+          <select id="template" name="template"><option value="hello">Hello World / custom Bash</option><option value="make">C with Make</option><option value="cmake">C / C++ with CMake</option><option value="node">Node.js</option><option value="python">Python</option></select>
+          <p class="help" id="template-help"></p>
+          <label for="name">Workflow name</label><input id="name" name="name" value="My first workflow" maxlength="100" aria-describedby="name-help"><p class="help" id="name-help">The friendly name shown in the Actions tab.</p>
+          <label for="filename">File name</label><input id="filename" name="filename" value="ci.yml" maxlength="80" aria-describedby="file-help"><p class="help" id="file-help">A simple name ending in .yml or .yaml, e.g. build.yml.</p>
+        </fieldset>
+        <fieldset><legend>2. Decide when it runs</legend>
+          <label class="check"><input type="checkbox" name="push" checked> Push: when code is pushed</label>
+          <label class="check"><input type="checkbox" name="pullRequest" checked> Pull request: when a PR is opened or updated</label>
+          <label for="branches">Branch filters (one per line, optional)</label><textarea id="branches" name="branches" rows="2" placeholder="main&#10;release/**" aria-describedby="branch-help"></textarea><p class="help" id="branch-help">Blank means all branches. Applies to push and PR target branches, not manual or scheduled runs. Simple names and * globs only; no negation.</p>
+          <label class="check"><input type="checkbox" name="dispatch" checked> Manual: add a Run workflow button</label>
+          <label class="check"><input type="checkbox" name="schedule"> Schedule: run on a UTC timetable</label>
+          <label for="cron">Cron (five fields, UTC)</label><input id="cron" name="cron" value="17 9 * * 1-5" aria-describedby="cron-help"><p class="help" id="cron-help">17 9 * * 1-5 = weekdays at 09:17 UTC. Numeric fields, lists, ranges and /steps supported. At least 5 minutes apart. Schedules use the default branch and can be delayed; public inactive repos may have schedules disabled after 60 days.</p>
+        </fieldset>
+        <fieldset><legend>3. Set up the job &amp; step</legend>
+          <label for="runner">GitHub-hosted runner</label><select id="runner" name="runner"><option value="ubuntu-latest">Ubuntu Linux (recommended)</option><option value="windows-latest">Windows</option><option value="macos-latest">macOS</option></select>
+          <p class="help">All command steps use Bash, including on Windows. Make and CMake templates require Ubuntu's preinstalled build tools. Hosted images change over time.</p>
+          <label for="directory">Working directory</label><input id="directory" name="directory" value="." aria-describedby="directory-help"><p class="help" id="directory-help">Repository-relative folder, e.g. . or src. It must already exist. No absolute paths, .. or shell syntax.</p>
+          <label for="stepName">Command step name</label><input id="stepName" name="stepName" value="Say hello" maxlength="100">
+          <label for="message">Example environment value</label><input id="message" name="message" value="Hello from GitHub Actions!" maxlength="200" aria-describedby="message-help"><p class="help" id="message-help">Available as "$LEARNING_MESSAGE" in Bash. Plain text only; never enter secrets.</p>
+          <label for="commands">Commands to run</label><textarea id="commands" name="commands" rows="6" spellcheck="false" aria-describedby="commands-help">printf '%s\n' "$LEARNING_MESSAGE"</textarea><p class="help" id="commands-help">Only use commands you understand. These run later on GitHub, not here. Raw Actions expressions are deliberately rejected in commands; pass context values through env instead. Shell correctness and project files are your responsibility.</p>
+        </fieldset>
+      </form>
+      <section class="preview-panel" aria-labelledby="preview-title">
+        <div class="preview-bar"><div><span class="status-dot" aria-hidden="true"></span><h3 id="preview-title">Your workflow</h3></div><span>YAML</span></div>
+        <p id="save-path" class="file-path"></p>
+        <div id="errors" class="errors" role="alert" hidden></div>
+        <p id="validity" role="status" class="help"></p>
+        <pre tabindex="0" aria-label="Generated workflow YAML"><code id="preview"></code></pre>
+        <div class="actions"><button id="copy" type="button">Copy YAML</button><button id="download" type="button" class="secondary">Download .yml</button></div>
+        <p id="feedback" role="status"></p>
+        <p class="help safety">Read-only repository permission. Immutable action SHAs. No saved credentials. No backend execution.</p>
+      </section>
+    </div>
+    <section id="learn">
+      <div class="section-heading"><div><p class="eyebrow">02 / THE BASICS</p><h2>Read YAML like a recipe.</h2></div><p>Open a lesson. Try one idea at a time.</p></div>
+      <div class="lessons">
+        <details open><summary>1. Spaces tell you what belongs where</summary><p>Use spaces, never tabs. This app uses two spaces per level. Children are indented beneath a parent; siblings line up. A wrong indent can change the meaning, even if the YAML still parses.</p><pre><code>jobs:
+  build:
+    runs-on: "ubuntu-latest"</code></pre><p><code>build</code> belongs to <code>jobs</code>; <code>runs-on</code> belongs to <code>build</code>.</p></details>
+        <details><summary>2. Mappings, lists, strings &amp; quotes</summary><p>A mapping is <code>key: value</code>. A list uses <code>-</code> for each item. Strings are text. Quote text such as <code>"3.13"</code>, <code>"yes"</code>, or <code>"hello: world"</code> to avoid accidental numbers, booleans or mappings. Inside double quotes, escaped characters such as <code>\n</code> mean a newline.</p><pre><code>steps:
+  - name: "Say hello"
+    run: "echo hello"</code></pre><p><code>|</code> introduces a multiline string that preserves line breaks. YAML 1.1 tools can misread unquoted <code>on</code> as a boolean; the generator quotes keys too, so <code>"on"</code> stays a string.</p></details>
+        <details><summary>3. The workflow's six building blocks</summary><p><code>name</code>: display label. <code>on</code>: events that start runs. <code>jobs</code>: work grouped into jobs. <code>runs-on</code>: the runner machine. <code>steps</code>: ordered tasks within a job. A step either <code>uses</code> a reusable action or runs commands with <code>run</code>.</p><p>Jobs usually run in parallel; steps in one job run in order. Checkout downloads your repository before commands can use its files. <code>with</code> supplies inputs to an action.</p></details>
+        <details><summary>4. Pick events deliberately</summary><p><code>push</code> reacts to commits. <code>pull_request</code> checks proposed changes (normally the merge result), and branch filters refer to the PR's <em>base</em> branch. A branch filter on push excludes tag pushes. <code>workflow_dispatch</code> enables manual runs once the workflow exists on the default branch.</p><p><code>schedule</code> uses UTC cron: minute, hour, day of month, month, day of week (0 or 7 = Sunday). Both day fields are matched with OR if both are restricted. Schedule files must exist on the default branch. This tool supports a small numeric cron subset, not every possible Actions configuration.</p></details>
+        <details><summary>5. Expressions, contexts, env &amp; secrets</summary><p>An expression like <code>${{ github.ref }}</code> reads a context value. Contexts include <code>github</code> (run metadata), <code>env</code> (variables) and <code>secrets</code> (configured secrets). Shell <code>$LEARNING_MESSAGE</code> is different: Bash expands an environment variable at runtime.</p><pre><code>- name: "Read a branch safely"
+  env:
+    BRANCH: ${{ github.head_ref }}
+  run: |
+    printf '%s\n' "$BRANCH"</code></pre><p>Never insert event text directly into <code>run</code>, use <code>eval</code>, or execute untrusted branch text. The example passes it as data through env. To use a secret, configure it in repository Settings &gt; Secrets and variables &gt; Actions, then reference <code>${{ secrets.MY_SECRET }}</code> through an action input or env. Never paste values here, commit them, or print secrets. Fork PRs normally do not receive repository secrets.</p></details>
+        <details><summary>6. Permissions &amp; pinned actions</summary><p><code>permissions: contents: read</code> limits the automatic GITHUB_TOKEN to reading repository contents; unspecified permissions are none. Checkout uses <code>persist-credentials: false</code>. This tool intentionally excludes <code>pull_request_target</code> and deployment/write-token templates.</p><p>Actions are dependencies. A full commit SHA is immutable; a tag such as <code>@v7</code> can move. Generated files pin reviewed official action revisions and include version comments. Review updates (for example with Dependabot); pinning alone does not guarantee an action is safe. These Node 24 actions target current GitHub-hosted runners, not old self-hosted installations.</p></details>
+      </div>
+      <div class="quiz"><h3>A quick check</h3><p>Which key picks the machine that executes a job?</p><div class="actions"><button type="button" data-answer="false">uses</button><button type="button" data-answer="true">runs-on</button><button type="button" data-answer="false">on</button></div><p id="quiz-feedback" role="status">Choose an answer to check your understanding.</p></div>
+    </section>
+    <section id="next" class="next"><p class="eyebrow">03 / FROM FILE TO FIRST RUN</p><h2>Ready? Put it in your repository.</h2>
+      <ol><li>Copy or download your YAML. Review every command and confirm the template's required project files exist.</li><li>Create <code>.github/workflows/</code> at your repository root. Save the file there, for example <code>.github/workflows/ci.yml</code>.</li><li>Commit and push to GitHub (or use Add file in GitHub's web editor). Check your repository's Actions policy and runner usage limits.</li><li>Open the repository's <strong>Actions</strong> tab. Choose the workflow, then a run to inspect each job's logs. For manual runs, add the file to the default branch first, then select <strong>Run workflow</strong>.</li></ol>
+      <p>Valid YAML is not a guarantee of a successful run. Missing files, shell mistakes, dependency failures, repository policy and runner changes can still cause failures. This site never starts a workflow or contacts GitHub's API.</p>
+    </section>
+    <footer><p>Made for learning, not for every CI/CD scenario.</p><div><a href="https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax">Official workflow syntax</a><a href="https://docs.github.com/en/actions/concepts/security/secure-use">Security guidance</a><a href="https://github.com/itsnavin/github-actions-generator">Source &amp; setup</a></div></footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "name": "github-actions-learning-generator",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local-only static GitHub Actions workflow generator and beginner lessons",
+  "scripts": {
+    "test": "node --test --test-reporter=dot tests/generator.test.cjs",
+    "test:browser": "playwright test",
+    "lint:workflows": "node tests/actionlint.cjs",
+    "serve": "node tests/server.cjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "yaml": "2.9.1"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}
