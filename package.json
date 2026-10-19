@@ -4,7 +4,7 @@
   "private": true,
   "description": "Local-only static GitHub Actions workflow generator and beginner lessons",
   "scripts": {
-    "test": "node --test --test-reporter=dot tests/generator.test.cjs",
+    "test": "node --test --test-reporter=dot tests/generator.test.cjs tests/reference.test.cjs",
     "test:browser": "playwright test",
     "lint:workflows": "node tests/actionlint.cjs",
     "serve": "node tests/server.cjs"

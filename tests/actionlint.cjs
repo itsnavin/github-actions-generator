@@ -2,6 +2,7 @@ const { mkdirSync, writeFileSync, readdirSync, unlinkSync } = require("node:fs")
 const { join } = require("node:path");
 const { spawnSync } = require("node:child_process");
 const api = require("../generator.js");
+const reference = require("../reference.js");
 const dir = join(__dirname, "..", ".generated-workflows");
 mkdirSync(dir, { recursive: true });
 for (const file of readdirSync(dir)) {
@@ -22,10 +23,16 @@ for (const [template, spec] of Object.entries(api.templates)) {
     }
   }
 }
+const generatedCount = files.length;
+for (const text of [reference.walkthrough, ...reference.topics.filter(t => t.complete).map(t => t.example)]) {
+  const file = join(dir, `fixture-${files.length}.yml`);
+  writeFileSync(file, text);
+  files.push(file);
+}
 // Generated commands are never executed; actionlint inspects files only.
 for (let start = 0; start < files.length; start += 25) {
   const result = spawnSync(process.env.ACTIONLINT || "actionlint", ["-shellcheck=", "-pyflakes=", ...files.slice(start, start + 25)], { stdio: "inherit" });
   if (result.error) throw result.error;
   if (result.status !== 0) process.exit(result.status || 1);
 }
-console.log(`actionlint passed for ${files.length} generated workflows (shellcheck/pyflakes disabled).`);
+console.log(`actionlint passed for ${generatedCount} generated workflows and ${files.length - generatedCount} complete learning examples (shellcheck/pyflakes disabled).`);

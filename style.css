@@ -48,6 +48,35 @@ input[type=checkbox] { accent-color: var(--green); width: 19px; height: 19px; fl
 .preview-panel .actions { padding: 1rem 1.2rem 0; }
 #feedback { font-size: .85rem; }
 .safety { border-top: 1px solid var(--line); padding-top: .8rem !important; }
+.preview-panel pre a { color: #c8f5d7; text-decoration-style: dotted; }
+.preview-panel pre a:hover { color: white; text-decoration-style: solid; }
+.field-guide { border-left: 3px solid #bdd2c0; margin: 1.2rem 0 .5rem; padding: 0 0 0 .8rem; }
+.field-guide > p { margin: 0; color: var(--muted); font-size: .85rem; }
+.field-guide details { margin: .35rem 0; padding: .5rem .6rem; border: 0; background: #f0f5ed; font-size: .8rem; }
+.field-guide summary { font-size: .8rem; }
+.field-guide details p { font-size: .8rem; }
+.field-guide pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+.walkthrough { margin-bottom: 2.5rem; padding: 1.5rem; border: 1px solid var(--line); border-radius: 10px; background: #edf2e7; }
+.walkthrough details { margin-top: 1rem; }
+.walkthrough-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.5rem; }
+.walkthrough-grid > div { min-width: 0; }
+.walkthrough-grid li { margin: .7rem 0; font-size: .85rem; }
+#reference { padding-top: 2rem; }
+.reference-tools { display: flex; align-items: end; gap: 1rem; flex-wrap: wrap; padding: 1rem; border: 1px solid var(--line); border-radius: 8px; }
+.reference-tools > div:first-child { flex: 2 1 240px; }
+.reference-tools > div:nth-child(2) { flex: 1 1 180px; }
+.reference-tools label { margin-top: 0; }
+#reference-count { font-size: .85rem; color: var(--muted); }
+.reference-card { margin: .7rem 0; scroll-margin-top: 1rem; }
+.reference-card[hidden] { display: none; }
+.reference-card:target { border: 2px solid var(--green); }
+.reference-body h4 { margin-bottom: .3rem; font-size: .9rem; }
+.reference-badge { font-size: .75rem !important; color: var(--green); font-weight: 700; }
+.reference-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+.reference-body { overflow-wrap: anywhere; }
+.reference-body pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+@media (max-width: 800px) { .walkthrough-grid { grid-template-columns: 1fr; gap: 0; } }
+@media (max-width: 480px) { .walkthrough { padding: 1rem; } .site-header nav { flex-wrap: wrap; gap: .8rem; } }
 .errors { color: #872616; background: #fff0ea; margin: 1rem; padding: .5rem 1rem; font-size: .85rem; border-left: 3px solid #a03620; }
 #learn { padding-top: 2.5rem; }
 .lessons { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: start; }

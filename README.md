@@ -41,6 +41,36 @@ events, expressions/contexts, env, secrets, permissions, and immutable action
 pinning. A small quiz checks understanding. The final walkthrough covers saving
 `.github/workflows/ci.yml`, committing, pushing, and inspecting Actions logs.
 
+### Know the syntax before including it
+
+**[Searchable syntax reference](https://itsnavin.github.io/github-actions-generator/#reference)**
+and **[annotated first workflow](https://itsnavin.github.io/github-actions-generator/#walkthrough)**.
+Every generator control now has a short purpose **before** its label and an
+expandable, keyboard-accessible "Before choosing" explanation: placement, accepted
+values, example and pitfalls. Select an underlined key in the YAML preview to open
+its reference topic; export still copies/downloads the original unchanged YAML.
+Direct links reopen topics after reload, clearing search filters when necessary.
+
+The reference covers YAML structure/quoting and `|` versus `>`; names, events,
+branch/tag/path filters, manual inputs and schedules; permissions, defaults, env,
+concurrency; job IDs/names, dependencies/conditions/skips, runners, environments,
+matrices/failure policy/timeouts/outputs; step IDs/names, uses/with/checkout,
+run/shell/directory/conditions; expressions/operators/functions/context
+availability; environment files and deprecated set-output; reusable workflow
+interfaces and secret passing; containers/services; artifacts versus caches;
+untrusted inputs, privileged triggers, least privilege and version compatibility.
+
+The 37 topics cover all 14 generator controls and the advanced reference areas
+above. Each topic contains an original explanation, scope, value/type, a labeled scoped
+fragment or complete example, gotchas and an official source. Search matches
+examples and pitfalls as well as titles; filter by topic group to explore.
+Examples do not execute. Unsupported generation features are explicitly labeled
+**reference-only**: this update adds learning coverage, not partially implemented
+advanced generator options. The catalog is broad but not every present/future key,
+event, action input or GitHub Enterprise Server version. Official schemas,
+action READMEs, limits and your platform version remain authoritative.
+The expanded guide's official sources were checked **2026-10-20**.
+
 Generating or downloading a file **does not start a workflow**. GitHub starts
 runs only after you commit the file into a repository and its configured event
 occurs, subject to repository Actions settings and runner availability.
@@ -92,12 +122,13 @@ together. Pinning does not replace dependency review.
 
 Sources: [workflow syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax),
 [trigger events](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows),
-[secure use](https://docs.github.com/en/actions/concepts/security/secure-use),
+[secure use](https://docs.github.com/en/actions/reference/security/secure-use),
 [contexts](https://docs.github.com/en/actions/reference/workflows-and-actions/contexts).
 
 ## Run locally
 
-The application is just `index.html`, `style.css`, `generator.js`, and `app.js`.
+The application uses `index.html`, `style.css`, `generator.js`, `app.js`,
+`reference.js` (source-backed learning catalog) and `guide.js` (help/search/navigation).
 Open index.html directly, or use any static HTTP server. No build step is needed.
 For the included development server and tests, install Node.js 24 or later:
 
@@ -126,6 +157,15 @@ template updates, errors, exports, quiz/lessons, labels, keyboard entry, HTML
 injection resistance, JavaScript errors, external requests, and page overflow.
 Mobile emulation is not a physical iPhone or Safari test.
 
+Catalog tests enforce help coverage for every generator control, topic metadata,
+valid internal links, search behavior, preview-key mappings and YAML parsing of
+every catalog example. Complete learning workflows (including the walkthrough)
+are also passed to actionlint. Scoped fragments are parsed but are **not** claimed
+to be standalone GitHub workflows; some need project files, an action, service or
+matching reusable-workflow interface. Browser tests exercise pre-selection help,
+search/group filtering, no results, deep links/reloads, preview links without
+YAML changes, keyboard navigation and reference-only labels on desktop/mobile.
+
 To lint generated files, install [actionlint 1.7.12](https://github.com/rhysd/actionlint/releases/tag/v1.7.12)
 on PATH (or set `ACTIONLINT` to its executable) and run:
 
@@ -133,7 +173,8 @@ on PATH (or set `ACTIONLINT` to its executable) and run:
 npm run lint:workflows
 ```
 
-This statically checks 165 generated fixtures; it **never executes their commands**.
+This statically checks 165 generated fixtures plus complete learning examples;
+it **never executes their commands**.
 ShellCheck and Pyflakes are explicitly disabled; their checks are not claimed.
 Neither YAML parsing nor actionlint proves actual workflow execution, project
 correctness, or successful package installation. The repository's CI checks the

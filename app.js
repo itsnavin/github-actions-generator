@@ -25,7 +25,7 @@
       errors.append(p);
     }
     errors.hidden = result.errors.length === 0;
-    preview.textContent = output || "";
+    window.WorkflowGuide.renderPreview(preview, output || "");
     copy.disabled = download.disabled = !output;
     document.querySelector("#validity").textContent = output ? "Inputs validated. Review this starter before using it." : "Fix the errors to generate YAML. Export is disabled.";
     document.querySelector("#save-path").textContent = output ? `.github/workflows/${c.filename}` : "No file generated";
