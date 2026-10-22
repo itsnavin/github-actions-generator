@@ -3,6 +3,8 @@ const { join } = require("node:path");
 const { spawnSync } = require("node:child_process");
 const api = require("../generator.js");
 const reference = require("../reference.js");
+const formatter = require("../formatter-core.cjs");
+const formatterFixtures = require("./formatter-fixtures.cjs");
 const dir = join(__dirname, "..", ".generated-workflows");
 mkdirSync(dir, { recursive: true });
 for (const file of readdirSync(dir)) {
@@ -29,10 +31,19 @@ for (const text of [reference.walkthrough, ...reference.topics.filter(t => t.com
   writeFileSync(file, text);
   files.push(file);
 }
+const learningCount = files.length - generatedCount;
+const textsToFormat = [reference.walkthrough, ...formatterFixtures.fixtures.map(fixture => fixture.text)];
+for (const text of textsToFormat) {
+  const result = formatter.analyze(text);
+  if (!result.ok) throw new Error(JSON.stringify(result.diagnostics));
+  const file = join(dir, `fixture-${files.length}.yml`);
+  writeFileSync(file, result.output);
+  files.push(file);
+}
 // Generated commands are never executed; actionlint inspects files only.
 for (let start = 0; start < files.length; start += 25) {
   const result = spawnSync(process.env.ACTIONLINT || "actionlint", ["-shellcheck=", "-pyflakes=", ...files.slice(start, start + 25)], { stdio: "inherit" });
   if (result.error) throw result.error;
   if (result.status !== 0) process.exit(result.status || 1);
 }
-console.log(`actionlint passed for ${generatedCount} generated workflows and ${files.length - generatedCount} complete learning examples (shellcheck/pyflakes disabled).`);
+console.log(`actionlint passed for ${generatedCount} generated workflows, ${learningCount} complete learning examples and ${textsToFormat.length} formatter outputs (shellcheck/pyflakes disabled).`);

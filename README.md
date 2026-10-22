@@ -7,7 +7,7 @@ app**. Separate from the Wi-Fi configuration project.
 
 Choose a template, edit its inputs, review the live preview, then copy or download
 your workflow. Nothing is executed by the site. No accounts, API authentication,
-tokens, telemetry, remote fonts, runtime dependencies, or backend are needed.
+tokens, telemetry, remote fonts, CDN dependencies, or backend are needed.
 Inputs are not saved or sent anywhere. External documentation links are opened
 only when you follow them.
 
@@ -78,6 +78,94 @@ Manual workflows must exist on the default branch. Schedules run on the default
 branch, use UTC here, can be delayed, and may be disabled in inactive public repos.
 Push branch filters exclude tag pushes; PR branch filters match the base branch.
 
+## Advanced YAML indentation / formatting
+
+**[Open the advanced formatter](https://itsnavin.github.io/github-actions-generator/#formatter)**.
+It is separate from the generator: no existing builder fields or templates change.
+
+1. Remove actual secret values; use secret references instead. Paste YAML into the
+   editor or upload a local UTF-8 `.yml`/`.yaml` (at most 100 KiB).
+2. Choose 2-space indentation (default), 4 or 8 spaces; LF (default), CRLF or
+   preserve the source's line-ending convention; optional top-level `"on"`
+   quoting; workflow/basic-shape or generic-YAML mode.
+3. Select **Analyze & propose formatting**. Source remains unchanged. Syntax
+   diagnostics show line/column and a button to focus the corresponding character.
+4. Inspect the original/proposal side by side with display-only line numbers.
+   Explicitly apply to the editor, copy the proposal, or download a new file.
+   The original uploaded file is never overwritten. Editing source/options
+   discards the old proposal, preventing stale exports.
+5. **Clear editor & results** discards current app buffers and uploaded filename.
+   The app does not persist inputs. Clear cannot remove your clipboard, downloads
+   or browser/OS history. No scripts or expressions are ever run.
+
+### Automatic formatting versus diagnostics-only
+
+Automatic proposals are for **valid, unambiguous YAML**: normalize collection
+indentation, line endings, whitespace presentation, and optionally quote the
+top-level `on` key for YAML 1.1 tool compatibility. The parser uses YAML **1.2 core**
+so `on` remains a string key, not a boolean. This tool never guesses which parent
+a key belongs under or repairs shell commands. Invalid indentation, tabs used as
+indentation, duplicate keys and malformed quotes require manual source edits.
+Valid YAML with wrong nesting can still be an incorrect workflow.
+
+The formatter uses the mature [yaml 2.9.1](https://eemeli.org/yaml/) document/AST
+API, **not parse-to-plain-object-and-dump** or global whitespace/tab replacement.
+The document's ordered tree is fingerprinted before printing and reparsed after:
+scalar types/values, key/list order, comment text/attachments, anchors and alias
+references must match. Alias graphs are never expanded. If the printer cannot
+preserve those invariants, it returns an error and **no output**, not the original
+text disguised as a successful fix.
+
+Literal/folded script values, here-docs, expressions, tabs *inside* values,
+trailing spaces and newlines must have identical **parsed string bytes** before
+and after. Source spelling is not byte-preserved: YAML block indentation,
+quoting/escapes, wrapping, blank lines, comment spacing, numeric spelling and
+document boundary markers may be reprinted. A UTF-8 BOM is removed on file decode.
+For 4/8-space indentation, multiline values beginning with whitespace are printed
+with escaped double quotes: this avoids yaml 2.9.1's fixed `|2` indentation
+indicator changing their value. The preservation gate still verifies them.
+Mixed source line endings become a single convention; "preserve" chooses CRLF
+if the uploaded source contains CRLF, otherwise LF. Pasted textarea text normally
+has LF because browsers normalize textarea newlines.
+
+Unsupported cases fail explicitly: multiple documents, version/tag directives,
+explicit tags (including standard tags), merge keys (`<<`), non-string/complex
+mapping keys, duplicate anchors, unresolved/forward/cyclic aliases, overly complex
+documents or parser warnings. Limits are 100 KiB UTF-8 for input **and output**,
+depth 60 and 12000 AST nodes. A local worker isolates parsing from the UI and is
+terminated on edits/clear and after a five-second timeout.
+
+Workflow mode checks a deliberately small set of structural mistakes: top-level
+mapping with trigger/jobs; common misplaced keys; job/step map/list shape; normal
+jobs' runner/steps; reusable caller conflicts; `run` versus `uses`; a few basic
+field types. It **does not** implement the entire Actions schema. Aliased workflow
+sections are preserved with a warning that shape checking did not expand them.
+`pull_request_target` produces a trust-boundary warning, not a security verdict.
+Generic-YAML mode skips workflow structure checks and is not a claim that the
+result can run on GitHub. This tool does not add safe permissions or remove unsafe
+commands from an existing file; read all content before committing it.
+
+### Bundled parser and development
+
+The site ships `vendor/formatter.bundle.js` locally (yaml's ISC license is in
+`vendor/yaml-LICENSE`). No external script or parser request is made. `esbuild`
+is a pinned development-only bundler, not a runtime service. The committed bundle
+is produced from `formatter-core.cjs`; `formatter-worker.js` loads it only when
+you request analysis. No runtime npm installation or site build is required.
+
+After editing the core or updating yaml/esbuild:
+
+```sh
+npm ci --ignore-scripts
+npm run build:formatter
+npm run check:formatter-bundle
+```
+
+Commit the bundle, license and lockfile with source changes. CI verifies bundle
+reproducibility instead of allowing source and shipped code to diverge. Serve over
+HTTP(S): browsers may block workers for `file://` pages. The previous
+generator/reference can still be opened directly; worker failures are explicit.
+
 ## Validation and security boundaries
 
 - Export is disabled and the preview is cleared for invalid inputs. Names, paths,
@@ -101,8 +189,9 @@ Push branch filters exclude tag pushes; PR branch filters match the base branch.
   `persist-credentials: false`, and full action commit SHAs. Other token
   permissions are not granted. No secret values should be entered in the app;
   lessons show secret *references* only. Never print secrets.
-- The runtime has no third-party dependencies. `yaml` and Playwright are
-  development-only dependencies locked in package-lock.json.
+- The generator/reference have no third-party runtime dependencies. The advanced
+  formatter bundles `yaml` locally; Playwright and esbuild are development-only.
+  All tool versions are locked in package-lock.json.
 
 ### Official action revisions
 
@@ -128,8 +217,10 @@ Sources: [workflow syntax](https://docs.github.com/en/actions/reference/workflow
 ## Run locally
 
 The application uses `index.html`, `style.css`, `generator.js`, `app.js`,
-`reference.js` (source-backed learning catalog) and `guide.js` (help/search/navigation).
-Open index.html directly, or use any static HTTP server. No build step is needed.
+`reference.js` (source-backed learning catalog), `guide.js` (help/search/navigation),
+`formatter-ui.js`, `formatter-worker.js` and the committed vendor parser bundle.
+Use a static HTTP server for all features, especially the advanced worker.
+No build step is needed unless you change formatter source/dependencies.
 For the included development server and tests, install Node.js 24 or later:
 
 ```sh
@@ -145,6 +236,7 @@ to select the preview manually or download instead.
 
 ```sh
 npm test
+npm run check:formatter-bundle
 npx playwright install chromium
 npm run test:browser
 ```
@@ -166,6 +258,15 @@ matching reusable-workflow interface. Browser tests exercise pre-selection help,
 search/group filtering, no results, deep links/reloads, preview links without
 YAML changes, keyboard navigation and reference-only labels on desktop/mobile.
 
+Formatter tests cover literal/folded strings, explicit block indentation,
+here-docs, exact parsed script bytes, tabs inside content versus indentation,
+quotes/expressions, CRLF, anchors/aliases, duplicate keys, comments/key order,
+scalar types/large integers, multiple documents/tags, invalid input, structural
+diagnostics, idempotence, UTF-8 limits and the preservation failure gate.
+The browser suite also exercises uploads (size/extension/UTF-8 failures), actual
+downloads, clipboard success/denial, clear/stale-result invalidation, worker
+failure/timeout/cancellation, safe text rendering, non-persistence and layout.
+
 To lint generated files, install [actionlint 1.7.12](https://github.com/rhysd/actionlint/releases/tag/v1.7.12)
 on PATH (or set `ACTIONLINT` to its executable) and run:
 
@@ -173,7 +274,8 @@ on PATH (or set `ACTIONLINT` to its executable) and run:
 npm run lint:workflows
 ```
 
-This statically checks 165 generated fixtures plus complete learning examples;
+This statically checks 165 generated fixtures, 8 complete learning examples and
+7 formatter outputs from **known test fixtures**, not arbitrary pasted commands;
 it **never executes their commands**.
 ShellCheck and Pyflakes are explicitly disabled; their checks are not claimed.
 Neither YAML parsing nor actionlint proves actual workflow execution, project

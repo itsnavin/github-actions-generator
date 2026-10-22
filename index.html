@@ -4,17 +4,18 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Learn GitHub Actions one small step at a time and generate a workflow YAML file locally.">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; worker-src 'self'; style-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <title>Actions Lab | Learn &amp; build a workflow</title>
   <link rel="stylesheet" href="style.css">
   <script src="generator.js" defer></script>
   <script src="reference.js" defer></script>
   <script src="guide.js" defer></script>
   <script src="app.js" defer></script>
+  <script src="formatter-ui.js" defer></script>
 </head>
 <body>
   <a class="skip" href="#builder">Skip to generator</a>
-  <header class="site-header"><a class="brand" href="./">[ &gt; ] Actions Lab</a><nav aria-label="Main"><a href="#builder">Build</a><a href="#learn">Learn</a><a href="#reference">Syntax reference</a><a href="#next">Use your file</a></nav></header>
+  <header class="site-header"><a class="brand" href="./">[ &gt; ] Actions Lab</a><nav aria-label="Main"><a href="#builder">Build</a><a href="#formatter">Advanced formatter</a><a href="#learn">Learn</a><a href="#reference">Syntax reference</a><a href="#next">Use your file</a></nav></header>
   <main>
     <section class="hero">
       <p class="eyebrow">GITHUB ACTIONS, ONE SMALL STEP AT A TIME</p>
@@ -72,6 +73,50 @@
         <p class="help safety">Read-only repository permission. Immutable action SHAs. No saved credentials. No backend execution.</p>
       </section>
     </div>
+    <section id="formatter" aria-labelledby="formatter-title" data-limit-bytes="102400">
+      <div class="section-heading"><div><p class="eyebrow">ADVANCED / REVIEW BEFORE APPLYING</p><h2 id="formatter-title">Fix inconsistent YAML formatting, safely.</h2></div><a href="#builder">Back to the generator</a></div>
+      <p>Paste or upload an existing file. This tool formats <strong>already parseable, unambiguous YAML</strong>; it does not guess missing indentation or move keys to new parents. Two-space indentation is the default. Review both versions before applying or exporting.</p>
+      <p class="safety-notice"><strong>Remove secret values before pasting.</strong> Prefer <code>${{ secrets.MY_SECRET }}</code> references. Processing stays in a local browser worker: no API, execution, expression evaluation, telemetry or app storage. Clearing removes the app's current buffers; it cannot erase clipboard contents, downloads or browser/OS history.</p>
+      <details class="formatter-explainer"><summary>What can be fixed automatically, and what needs your judgment?</summary>
+        <p><strong>Safe proposal:</strong> consistent collection indentation (2, 4 or 8 spaces), whitespace presentation, line endings and optional quoting of the top-level <code>on</code> key. A local <a href="https://eemeli.org/yaml/">yaml 2.9.1</a> parser reads the document as YAML 1.2; the proposal is reparsed and its ordered structure, scalar values/types, comment attachments and anchor/alias references must match.</p>
+        <p><strong>Diagnostics only:</strong> invalid indentation, indentation tabs, duplicate keys, unsupported explicit tags/directives, multiple documents, merge keys, unresolved/cyclic aliases, or detected workflow shape errors. If several nestings could be intended, edit the source yourself, then analyze again. Valid YAML with the wrong parent can still mean the wrong workflow; no formatter can infer your intention.</p>
+        <p><strong>Script protection:</strong> <code>run: |</code>, folded <code>&gt;</code>, quotes, expressions, here-doc contents and tabs <em>inside scalar values</em> are treated as data, never commands. Parsed string contents (including script newlines, tabs and trailing spaces) must remain identical. YAML block indentation, quote escapes, wrapping, blank lines, comment spacing or numeric spelling may be reprinted. At 4/8-space widths, multiline values beginning with whitespace use escaped quotes to avoid block-indentation ambiguity. Source bytes are not promised to be identical; a guard blocks output if semantic/comment preservation fails.</p>
+        <p><strong>Limited workflow checks:</strong> common mapping/list mistakes, misplaced keys, missing runner/steps, <code>run</code> versus <code>uses</code> and a few field types. Aliased workflow sections receive a warning rather than being expanded. This is not the full GitHub schema, actionlint, shell validation, a security audit or proof a workflow will run. Generic YAML mode skips workflow checks and does not make the result a workflow.</p>
+        <p>One document, at most 100 KiB UTF-8, depth 60 and 12000 AST nodes. Workers time out after five seconds. Large, binary/non-UTF-8 and unsupported documents require a local editor. <a href="#ref-yaml">Review YAML basics</a> or <a href="#ref-multiline">multiline strings</a> before editing.</p>
+      </details>
+      <div class="formatter-options">
+        <div><label for="format-indent">Indentation width</label><select id="format-indent"><option value="2">2 spaces (recommended)</option><option value="4">4 spaces</option><option value="8">8 spaces</option></select></div>
+        <div><label for="format-endings">Output line endings</label><select id="format-endings"><option value="lf">LF (recommended)</option><option value="preserve">Preserve convention (CRLF if present)</option><option value="crlf">CRLF (Windows)</option></select></div>
+        <div><label for="format-profile">Diagnostic mode</label><select id="format-profile"><option value="workflow">GitHub workflow (basic structure)</option><option value="yaml">Generic YAML (no workflow checks)</option></select></div>
+        <label class="check"><input id="format-quote-on" type="checkbox" checked> Quote top-level "on" (YAML 1.1 compatibility)</label>
+      </div>
+      <div class="formatter-load">
+        <div><label for="format-upload">Upload a local .yml or .yaml file (100 KiB maximum)</label><input id="format-upload" type="file" accept=".yml,.yaml" aria-describedby="format-upload-help"><p id="format-upload-help" class="help">UTF-8 only. Loading replaces this editor, not your generator settings. The original file is never modified.</p></div>
+        <button id="format-example" type="button" class="secondary">Load safe example</button>
+        <button id="format-clear" type="button" class="secondary">Clear editor &amp; results</button>
+      </div>
+      <label for="format-input">Existing YAML editor</label>
+      <textarea id="format-input" rows="16" spellcheck="false" autocapitalize="off" autocomplete="off" aria-describedby="format-editor-help format-size" placeholder="Paste your YAML here, or load the safe example."></textarea>
+      <p id="format-editor-help" class="help">Original text stays editable. Analyze creates a separate proposal; it does not silently change your source. Invalid edits discard any old proposal. Standard Tab navigation is preserved.</p>
+      <p id="format-size" class="help">0 / 102400 UTF-8 bytes</p>
+      <div class="actions"><button id="format-analyze" type="button">Analyze &amp; propose formatting</button></div>
+      <p id="format-status" role="status" aria-live="polite">No analysis yet.</p>
+      <ul id="format-diagnostics" class="format-diagnostics" aria-label="YAML diagnostics"></ul>
+      <section id="format-review" aria-labelledby="format-review-title" hidden>
+        <h3 id="format-review-title">Review before applying</h3>
+        <p id="format-summary"></p>
+        <p class="help">Side-by-side snapshots; line numbers are display-only. The download contains no numbers. A formatting proposal does not certify the workflow or its commands.</p>
+        <div class="format-compare">
+          <div><h4>Before (analyzed source)</h4><pre id="format-before" tabindex="0" aria-label="Original YAML snapshot"></pre></div>
+          <div><h4>After (proposed YAML)</h4><pre id="format-after" tabindex="0" aria-label="Proposed YAML snapshot"></pre></div>
+        </div>
+        <div class="actions"><button id="format-apply" type="button" disabled>Apply proposal to editor</button><button id="format-copy" type="button" class="secondary" disabled>Copy proposal</button></div>
+        <label for="format-filename">Formatted download filename</label><input id="format-filename" value="workflow-formatted.yml" maxlength="80" aria-describedby="format-filename-help"><p id="format-filename-help" class="help">Simple letters/digits/_/- ending in .yml or .yaml, no paths.</p>
+        <button id="format-download" type="button" class="secondary" disabled>Download formatted YAML</button>
+      </section>
+      <p id="format-feedback" role="status" aria-live="polite"></p>
+      <noscript><p>The advanced formatter requires JavaScript and web workers over HTTP(S). No file is processed when they are unavailable.</p></noscript>
+    </section>
     <section id="learn">
       <div class="section-heading"><div><p class="eyebrow">02 / THE BASICS</p><h2>Read YAML like a recipe.</h2></div><p>Open a lesson. Try one idea at a time.</p></div>
       <div class="lessons">

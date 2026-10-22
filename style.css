@@ -94,3 +94,25 @@ footer div { display: flex; flex-wrap: wrap; gap: 1.2rem; }
 @media (max-width: 800px) { .workbench, .lessons { grid-template-columns: 1fr; } .preview-panel { position: static; } .section-heading { display: block; } .hero { padding-top: 3rem; } }
 @media (max-width: 480px) { main { padding: 0 1rem; } .site-header { padding: 1rem; flex-wrap: wrap; } nav { gap: 1.2rem; } .hero-note { margin: 1rem 0 0; display: block; } fieldset { padding: 1rem; } h1 { font-size: 2.5rem; } }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+#formatter { margin: 3rem 0; padding-top: 1rem; }
+.formatter-options, .formatter-load { display: flex; align-items: end; flex-wrap: wrap; gap: 1rem; margin: 1.2rem 0; }
+.formatter-options > div { flex: 1 1 180px; min-width: 0; }
+.formatter-load > div { flex: 2 1 240px; min-width: 0; }
+.safety-notice { padding: 1rem; border-left: 3px solid #ba6619; background: #fff3df; font-size: .9rem; }
+.formatter-explainer p { font-size: .9rem; }
+#format-input { font: .85rem/1.6 ui-monospace, Consolas, monospace; tab-size: 2; white-space: pre; overflow: auto; }
+.format-compare { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }
+.format-compare > div { min-width: 0; }
+.format-compare pre { padding: .8rem; margin-top: .3rem; border: 1px solid var(--line); border-radius: 5px; background: white; max-height: 28rem; overflow: auto; tab-size: 2; }
+.format-compare h4 { margin-bottom: 0; }
+.format-line { display: block; white-space: pre; }
+.format-line-number { user-select: none; color: #677a76; min-width: 3ch; display: inline-block; text-align: right; padding-right: .7rem; }
+#format-review { padding: 1rem; border: 1px solid var(--line); border-radius: 8px; background: #edf2e7; }
+#format-review[hidden] { display: none; }
+.format-diagnostics { padding-left: 1.5rem; }
+.format-diagnostics li { margin: .6rem 0; color: #872616; overflow-wrap: anywhere; }
+.format-diagnostics li.warning { color: #694600; }
+.format-diagnostics p { font-size: .85rem; margin: .3rem 0; }
+button.diagnostic-location { background: transparent; color: inherit; border: 0; text-decoration: underline; padding: .2rem 0; text-align: left; font-size: .85rem; }
+#format-filename { max-width: 400px; }
+@media (max-width: 800px) { .format-compare { grid-template-columns: 1fr; } }

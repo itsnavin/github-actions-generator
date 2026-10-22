@@ -21,6 +21,7 @@ jobs:
           node-version: "24"
           package-manager-cache: false
       - run: npm ci --ignore-scripts
+      - run: npm run check:formatter-bundle
       - run: npm test
       - name: Install pinned actionlint with checksum verification
         env:
